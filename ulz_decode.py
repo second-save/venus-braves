@@ -23,6 +23,8 @@ class BitReader:
 
     def read(self, n: int) -> int:
         off = self.base + self.offset
+        if off + 2 >= len(self.buf):
+            raise IndexError("fin de flux ULZ")
         b0, b1, b2 = self.buf[off], self.buf[off + 1], self.buf[off + 2]
         window = (b0 << 16) | (b1 << 8) | b2
         shift = 24 - self.bitpos - n
@@ -50,7 +52,9 @@ def decode_plane(buf: bytes | bytearray, src: int, scratch: bytearray | None = N
     if len(scratch) < SCRATCH_SIZE:
         raise ValueError("scratch >= 0x4000")
 
-    br = BitReader(buf, src)
+    # Octets de marge pour ReadBits (fenêtre 24 bits en fin de tranche)
+    stream = bytes(buf[src:]) + b"\x00" * 8
+    br = BitReader(stream, 0)
     acc = br.read(6) << 1
     s3 = 0
 
