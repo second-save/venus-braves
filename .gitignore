@@ -81,3 +81,6 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+
+# Game data and analysis artifacts, never commit
+pma_probe_ev_yogen/chunks/
